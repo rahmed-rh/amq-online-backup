@@ -1,0 +1,34 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: amq-online-backup-cron
+spec:
+  schedule: "*/3 * * * *" #Runs every 3 minutes just for test
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          ttlSecondsAfterFinished: 300
+          serviceAccountName: sa-amq-online-backup
+          volumes:
+            - name: amq-online-backup
+              persistentVolumeClaim:
+                claimName: amq-online-backup-volume
+          securityContext:
+            fsGroup: 1001
+          containers:
+           - name: amq-online-backup
+             image: 'quay.io/redhat-bnl/amq-online-backup:latest'
+             resources: {}
+             env:
+               - name: AMQ_ONLINE_NAMESPACE
+                 value: amq-online-infra
+               - name: NAMESPACES_LIST
+                 value: amq-online-infra,products-catalog
+             imagePullPolicy: IfNotPresent
+             volumeMounts:
+               - name: amq-online-backup
+                 mountPath: /opt/amq-online-backup/backup
+          restartPolicy: Never
+      backoffLimit: 5
+  suspend: false

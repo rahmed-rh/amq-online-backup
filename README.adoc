@@ -1,0 +1,39 @@
+:data-uri:
+:toc: left
+:markup-in-source: +verbatim,+quotes,+specialcharacters
+:source-highlighter: rouge
+:icons: font
+:stylesdir: stylesheets
+:stylesheet: colony.css
+
+= AMQ Online Backup
+
+.References :
+** https://access.redhat.com/documentation/en-us/red_hat_amq/2020.q4/html-single/installing_and_managing_amq_online_on_openshift/index[]
+** https://access.redhat.com/documentation/en-us/red_hat_amq/2020.q4/html-single/using_amq_online_on_openshift/index[]
+
+:sectnums:
+
+The idea is to build a cron job that scan a list of namespace for AMQ Online Address.
+For each Address the job will export the broker data folder into the PVC so it can be restored again.
+
+To change the namespace list that are scanned
+
+[source,yaml]
+----
+- name: amq-online-backup
+  image: 'quay.io/redhat-bnl/amq-online-backup:latest'
+  resources: {}
+  env:
+    - name: AMQ_ONLINE_NAMESPACE
+      value: amq-online-infra
+    - name: NAMESPACES_LIST
+      value: amq-online-infra,products-catalog
+----
+
+To apply the yaml artifacts
+
+[source,bash]
+----
+kustomize build . | oc apply -f -
+----

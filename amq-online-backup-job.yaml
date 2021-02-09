@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+ name: amq-online-backup
+spec:
+ template:
+   metadata:
+     name: amq-online-backup
+     labels:
+       app: amq-online-backup
+   spec:
+     restartPolicy: Never
+     # https://kubernetes.io/docs/concepts/workloads/controllers/job/#ttl-mechanism-for-finished-jobs
+     ttlSecondsAfterFinished: 300
+     serviceAccountName: sa-amq-online-backup
+#     imagePullSecrets:
+#       - name: redhat-pull-secret
+     #securityContext:
+      #runAsUser: 1000
+      #runAsGroup: 3000
+      #fsGroup: 2000
+     volumes:
+       - name: amq-online-backup
+         persistentVolumeClaim:
+           claimName: amq-online-backup-volume
+     securityContext:
+       fsGroup: 1001
+     containers:
+       - name: amq-online-backup
+         image: 'quay.io/redhat-bnl/amq-online-backup:latest'
+         resources: {}
+         env:
+           - name: AMQ_ONLINE_NAMESPACE
+             value: amq-online-infra
+           - name: NAMESPACES_LIST
+             value: amq-online-infra,products-catalog
+         imagePullPolicy: Always
+         volumeMounts:
+           - name: amq-online-backup
+             mountPath: /opt/amq-online-backup/backup
+ backoffLimit: 5

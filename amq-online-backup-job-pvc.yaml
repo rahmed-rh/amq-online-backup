@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: amq-online-backup-volume
+  labels:
+    app: amq-online-backup
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+    #- "ReadWriteMany"
+  resources:
+    requests:
+      storage: "1Gi"
