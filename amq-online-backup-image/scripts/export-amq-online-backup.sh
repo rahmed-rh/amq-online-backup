@@ -53,9 +53,13 @@ function backup_pod_list () {
 	while IFS= read -r BROKER_POD_NAME ;
 		do
 			# either use ./artemis data exp > /tmp/export.xml or just gzip and copy the data folder
-			oc exec $BROKER_POD_NAME -n $AMQ_ONLINE_NAMESPACE -- tar -cvzf /tmp/"$ADDRESS_NAME.$BROKER_POD_NAME.tar.gz" /var/run/artemis/split-1/broker/data
-			oc rsync -n $AMQ_ONLINE_NAMESPACE $BROKER_POD_NAME:/tmp/"$ADDRESS_NAME.$BROKER_POD_NAME.tar.gz" "${BACKUP_FOLDER}"
-			oc exec $BROKER_POD_NAME -n $AMQ_ONLINE_NAMESPACE -- rm /tmp/"$ADDRESS_NAME.$BROKER_POD_NAME.tar.gz"
+			current_time=$(date "+%Y.%m.%d-%H.%M.%S")
+
+			fileName="$ADDRESS_NAME.$BROKER_POD_NAME.$current_time"
+			echo "FileName: " "$fileName"
+			oc exec $BROKER_POD_NAME -n $AMQ_ONLINE_NAMESPACE -- tar -cvzf /tmp/"$fileName.tar.gz" /var/run/artemis/split-1/broker/data
+			oc rsync -n $AMQ_ONLINE_NAMESPACE $BROKER_POD_NAME:/tmp/"$fileName.tar.gz" "${BACKUP_FOLDER}"
+			oc exec $BROKER_POD_NAME -n $AMQ_ONLINE_NAMESPACE -- rm /tmp/"$fileName.tar.gz"
 
 			# With --f option, This will allow certain tools like print-data to be
       #      performed ignoring any running servers. WARNING: Changing data
