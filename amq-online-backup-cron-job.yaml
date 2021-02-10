@@ -25,7 +25,8 @@ spec:
                  value: amq-online-infra
                - name: NAMESPACES_LIST
                  value: amq-online-infra,products-catalog
-             imagePullPolicy: IfNotPresent
+             #imagePullPolicy: IfNotPresent
+             imagePullPolicy: Always
              volumeMounts:
                - name: amq-online-backup
                  mountPath: /opt/amq-online-backup/backup
